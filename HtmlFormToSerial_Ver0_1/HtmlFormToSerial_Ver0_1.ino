@@ -17,18 +17,25 @@ String responseHTML = ""
 	"</head>"
 	"<body> "
 		"<br>"
-		"<form action='config' method='get' target='pantalla' style='float: left'>"
+		"<form action='send' method='get' target='pantalla' style='float: left'>"
 			"<fieldset align='left' style='border-style:solid; border-color:#336666; width:200px; height:130px; padding:10px; margin: 5px;'>"
 				"<legend><strong>Send Data to Serial</strong></legend>"
 				"Data: <br> <input name='data' type='text' size='15'/> <br><br>"
-				"<input type='button' value='Send' />"
+				"<input type='submit' value='Send' />"
 			"</fieldset>"
 		"</form>"
 		"<iframe id='pantalla' name='pantalla' src='' width=900px height=400px frameborder='0' scrolling='no'></iframe>"
     "</body>"
 "</html>";
 
+void sendData()
+{
+  Serial.println( webServer.arg("data"));
+  webServer.send(200, "text/html", "Data Sent");
+}
+
 void setup() {
+  Serial.begin(115200);
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
   WiFi.softAP("Send Data to Serial");
@@ -37,6 +44,7 @@ void setup() {
   // provided IP to all DNS request
   dnsServer.start(DNS_PORT, "*", apIP);
 
+  webServer.on("/send", sendData);
   // replay to all requests with same HTML
   webServer.onNotFound([]() {
     webServer.send(200, "text/html", responseHTML);
